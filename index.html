@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Симуляція: коефіцієнт тертя ковзання (дерево по дереву)</title>
+
+    <!-- Якщо у тебе збірка, можеш напряму підключити SCSS у своєму пайплайні.
+         У простому випадку: скомпілюй scss/style.scss -> css/style.css і підключи нижче -->
+    <link rel="stylesheet" href="css/style.scss" />
+  </head>
+
+  <body class="page">
+    <header class="header">
+      <div class="container header__inner">
+        <div>
+          <h1 class="header__title">Лабораторна робота (симуляція)</h1>
+          <p class="header__subtitle">
+            Визначення коефіцієнта тертя ковзання дерева по дереву
+          </p>
+        </div>
+
+        <button class="btn btn--ghost" type="button" id="btnReset">
+          Скинути
+        </button>
+      </div>
+    </header>
+
+    <main class="container main">
+      <section class="card">
+        <h2 class="card__title">Умови та обладнання</h2>
+
+        <div class="grid grid--2">
+          <div class="note">
+            <p class="note__title">Тема</p>
+            <p class="note__text">
+              Визначення коефіцієнта тертя ковзання.
+            </p>
+
+            <p class="note__title">Мета</p>
+            <p class="note__text">
+              Визначити коефіцієнт тертя ковзання дерева по дереву.
+            </p>
+          </div>
+
+          <div class="note">
+            <p class="note__title">Обладнання</p>
+            <ul class="list">
+              <li>дерев’яний брусок</li>
+              <li>дерев’яна дошка (трибометр)</li>
+              <li>набір тягарців</li>
+              <li>динамометр</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="steps">
+          <h3 class="steps__title">Вказівки до роботи</h3>
+          <ol class="steps__list">
+            <li>
+              Підвісивши брусок до динамометра, виміряйте вагу бруска (це буде
+              сила нормальної реакції у першому досліді).
+            </li>
+            <li>
+              Покладіть брусок на дошку. Рівномірно переміщуйте його. За показом
+              динамометра визначте силу тертя ковзання.
+            </li>
+            <li>
+              Повторіть дослід ще тричі: з 1, 2 та 3 тягарцями на бруску.
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__head">
+          <h2 class="card__title">Налаштування симуляції</h2>
+          <div class="badge" id="badgeStatus">Готово</div>
+        </div>
+
+        <div class="grid grid--3">
+          <div class="field">
+            <label class="field__label" for="blockMass">Маса бруска, кг</label>
+            <input
+              class="field__input"
+              id="blockMass"
+              type="number"
+              min="0.05"
+              max="5"
+              step="0.01"
+              value="0.50"
+            />
+            <p class="field__hint">Типово 0.50 кг</p>
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="weightMass">Маса 1 тягарця, кг</label>
+            <input
+              class="field__input"
+              id="weightMass"
+              type="number"
+              min="0.01"
+              max="2"
+              step="0.01"
+              value="0.20"
+            />
+            <p class="field__hint">Типово 0.20 кг</p>
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="noise">Шум вимірювання, %</label>
+            <input
+              class="field__input"
+              id="noise"
+              type="number"
+              min="0"
+              max="20"
+              step="1"
+              value="3"
+            />
+            <p class="field__hint">Імітує похибку динамометра</p>
+          </div>
+        </div>
+
+        <div class="grid grid--2 mt">
+          <div class="panel">
+            <h3 class="panel__title">Крок 1: “Зважування” бруска</h3>
+            <p class="panel__text">
+              Натисни кнопку — отримаєш показ динамометра для ваги бруска (N).
+            </p>
+
+            <div class="row">
+              <button class="btn" type="button" id="btnMeasureWeight">
+                Виміряти вагу бруска
+              </button>
+              <div class="meter" aria-live="polite">
+                <span class="meter__label">Показ:</span>
+                <span class="meter__value" id="weightReading">—</span>
+                <span class="meter__unit">Н</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3 class="panel__title">Крок 2–3: Тертя ковзання</h3>
+            <p class="panel__text">
+              Обери кількість тягарців і зроби вимір сили тертя (динамометр).
+            </p>
+
+            <div class="row row--wrap">
+              <div class="segmented" role="group" aria-label="Кількість тягарців">
+                <button class="segmented__btn is-active" type="button" data-w="0">
+                  0
+                </button>
+                <button class="segmented__btn" type="button" data-w="1">1</button>
+                <button class="segmented__btn" type="button" data-w="2">2</button>
+                <button class="segmented__btn" type="button" data-w="3">3</button>
+              </div>
+
+              <button class="btn btn--accent" type="button" id="btnMeasureFriction">
+                Виміряти силу тертя
+              </button>
+            </div>
+
+            <div class="meter meter--big" aria-live="polite">
+              <span class="meter__label">Сила тертя:</span>
+              <span class="meter__value" id="frictionReading">—</span>
+              <span class="meter__unit">Н</span>
+            </div>
+
+            <p class="field__hint">
+              Після виміру рядок у таблиці оновиться автоматично.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__head">
+          <h2 class="card__title">Опрацювання результатів</h2>
+          <div class="summary">
+            <div class="summary__item">
+              <span class="summary__label">Середнє μ:</span>
+              <span class="summary__value" id="muAvg">—</span>
+            </div>
+            <div class="summary__item">
+              <span class="summary__label">Готові досліди:</span>
+              <span class="summary__value" id="doneCount">0/4</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>№</th>
+                <th>Тягарці (шт)</th>
+                <th>m загальна, кг</th>
+                <th>N, Н</th>
+                <th>F тертя, Н</th>
+                <th>μ = F/N</th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody">
+              <!-- генерується JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="actions mt">
+          <button class="btn btn--ghost" type="button" id="btnFillAuto">
+            Автозаповнення 4 дослідів
+          </button>
+          <button class="btn" type="button" id="btnExportJson">
+            Експорт JSON
+          </button>
+        </div>
+
+        <pre class="codeblock" id="exportBox" hidden></pre>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__inner">
+        <p class="footer__text">
+          Симуляція для навчання: покази містять похибку, як у реальному експерименті.
+        </p>
+      </div>
+    </footer>
+
+    <script src="../scripts/main.js" defer></script>
+  </body>
+</html>
